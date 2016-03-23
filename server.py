@@ -6,6 +6,7 @@ import configparser
 from flask import Flask, render_template, redirect, request
 from redis import Redis
 from werkzeug import secure_filename
+import requests
 
 app = Flask(__name__)
 config = configparser.RawConfigParser()
@@ -15,6 +16,9 @@ redishost = config['db']['host']
 redisport = int(config['db']['port'])
 redisdb = config['db']['db']
 interface = config['setup']['interface']
+helpdesk_url = config['setup']['helpdesk_url']
+hostname_lookup_mode = config['setup']['hostname_lookup_mode']
+
 
 redis = Redis(host=redishost, port=redisport, db=redisdb)
 global osDir
@@ -79,6 +83,18 @@ def resethosts():
         error = 'Hostname Deletion Error'
         return error
 
+def get_helpdesk_data(ethernet):
+    global helpdesk_url
+
+    data = requests.get(helpdesk_url+"/api/computer_info.php?id="+ethernet.replace(":",""))
+    hd = {}
+
+    for line in data.text.split('\n'):
+        if ':' in line:
+            key,  value = line.split(':',  1)
+            hd[key.strip()] = value.strip()
+
+    return hd
 
 @app.route("/api/hostname", methods=['GET', 'POST'])
 def hostnamequery():
@@ -90,8 +106,14 @@ def hostnamequery():
     elif request.method == 'GET':
         try:
             current = request.args.get('mac', '')
-            hostname = redis.get('mac'+current).decode('UTF-8')[4:]
-            return hostname
+            
+            if hostname_lookup_mode == 'helpdesk':
+                hd = get_helpdesk_data(current)
+                return hd['hostname']
+            else:
+                hostname = redis.get('mac'+current).decode('UTF-8')[4:]
+                return hostname
+
         except Exception:
             # The host is unknown, so set hostname as such
             error = 'unknown'
@@ -110,6 +132,11 @@ def images(images=['']):
 @app.route("/hosts", methods=['GET', 'POST'])
 def hosts():
     "Defines the Host page functions"
+    global hostname_lookup_mode
+    
+    if hostname_lookup_mode == "helpdesk":
+        return render_template('hosts_helpdesk.html')
+    
     clients = []
     hosts = redis.keys('host*')
     for host in hosts:

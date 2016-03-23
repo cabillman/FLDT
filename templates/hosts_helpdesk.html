@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+{% block nav %}
+<li><a href="/images">Images</a></li>
+<li class="active"><a href="/hosts">Hosts</a></li>
+<li><a href="/multicast">Multicast</a></li>
+<li class="dropdown">
+        {% endblock nav %}
+        {% block body %}
+        <div class="container">
+                <div class="page-header">
+                        <h1> Host Management <small>Fast Linux Deployment Toolkit</small></h1>
+                </div>
+                <div class="container">
+                        <div class="alert alert-warning text-center">
+                        <h3>This server is configured to lookup hostnames via the helpdesk system.</h3>        
+                        </div>
+                </div>
+  
+        {% endblock body %}

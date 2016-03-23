@@ -3,6 +3,9 @@ imagepath = /images
 http_port = 8080
 interface = eth1
 nfsserver = 10.0.0.1
+#use this to lookup hostnames via our helpdesk
+#helpdesk_url = https://helpdesk_url.example.com
+#hostname_lookup_mode = helpdesk
 
 [db]
 host = 127.0.0.1
