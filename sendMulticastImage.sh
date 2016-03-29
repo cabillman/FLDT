@@ -9,7 +9,7 @@ if [ "$1" = "" ]; then
         exit
 fi
 
-for f in `find $IMAGE_PATH/$IMAGE_NAME/sd* -type f | sort -nr`
+for f in `find $IMAGE_PATH/$IMAGE_NAME/disks/* -type f | sort -nr`
 do
         echo "Starting multicast for $f"
         if [ $4 = "" ]; then
