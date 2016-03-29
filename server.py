@@ -122,6 +122,11 @@ def hostnamequery():
         error = 'Hostname Error'
         return error
 
+@app.route("/api/helpdesk/<param>", methods=['GET'])
+def helpdesk_query(param):
+    current = request.args.get('mac', '')
+    hd = get_helpdesk_data(current)
+    return hd[param]
 
 @app.route("/images/")
 def images(images=['']):
