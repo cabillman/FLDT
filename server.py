@@ -86,7 +86,7 @@ def resethosts():
 def get_helpdesk_data(ethernet):
     global helpdesk_url
 
-    data = requests.get(helpdesk_url+"/api/computer_info.php?id="+ethernet.replace(":",""))
+    data = requests.get(helpdesk_url+"/api/computer_info.php?mac="+ethernet.replace(":",""))
     hd = {}
 
     for line in data.text.split('\n'):
