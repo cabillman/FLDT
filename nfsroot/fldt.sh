@@ -43,7 +43,7 @@ if [ $IMAGING_MODE == "multicast" ]; then
 	route add -net 224.0.0.0 netmask 240.0.0.0 dev $ETHERNET_DEV
 fi
 
-parted < /nfs/$IMAGE_NAME/partitions.txt
+/nfs/$IMAGE_NAME/partitions.sh
 parted -l
 
 hdparm -z /dev/sda
@@ -65,7 +65,7 @@ do
 	if [ ! -d "/mnt/$LABEL" ]; then
 		mkdir /mnt/$LABEL
 	fi
-	
+
 	mount -t ext4 /dev/disk/by-partlabel/$LABEL /mnt/$LABEL
 
 done
@@ -80,4 +80,3 @@ do
 done
 
 echo "Finished Imaging. Reboot"
-
