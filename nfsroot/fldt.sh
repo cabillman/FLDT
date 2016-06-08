@@ -43,6 +43,7 @@ if [ $IMAGING_MODE == "multicast" ]; then
 	route add -net 224.0.0.0 netmask 240.0.0.0 dev $ETHERNET_DEV
 fi
 
+#parted -s < /nfs/$IMAGE_NAME/partitions.txt
 /nfs/$IMAGE_NAME/partitions.sh
 parted -l
 
@@ -56,17 +57,26 @@ do
 	echo "Restoring $f"
 	LABEL=`basename $f`
 
+	if [ -e "/dev/$LABEL" ]; then
+		DISK="/dev/$LABEL"
+	elif [ -e "/dev/disk/by-partlabel/$LABEL" ]; then
+		DISK="/dev/disk/by-partlabel/$LABEL"
+	fi
+	
+	echo "Imaging disk: $DISK"	
+
+
 	if [ $IMAGING_MODE == "multicast" ]; then
-		udp-receiver --mcast-rdv-address 224.0.0.1 | partclone.extfs -r -s - -o /dev/disk/by-partlabel/$LABEL -L /partclone.log
+		udp-receiver --mcast-rdv-address 224.0.0.1 | partclone.extfs -r -s - -o $DISK -L /partclone.log
 	else
-		partclone.extfs -r -s $f -o /dev/disk/by-partlabel/$LABEL -L /partclone.log
+		partclone.extfs -r -s $f -o $DISK -L /partclone.log
 	fi
 
 	if [ ! -d "/mnt/$LABEL" ]; then
 		mkdir /mnt/$LABEL
 	fi
-
-	mount -t ext4 /dev/disk/by-partlabel/$LABEL /mnt/$LABEL
+	
+	mount -t ext4 $DISK /mnt/$LABEL
 
 done
 
@@ -80,3 +90,4 @@ do
 done
 
 echo "Finished Imaging. Reboot"
+
